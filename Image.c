@@ -178,7 +178,7 @@ void Image_to_ASCII(const Image *pic)
         printf("\n");
     }
 }
-void Increase_Image_Brightness(const Image *pic, unsigned int del_b)
+void Image_Brightness(const Image *pic, unsigned int del_b)
 {
     for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
     {
