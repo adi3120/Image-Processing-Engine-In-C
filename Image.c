@@ -8,12 +8,18 @@
 #include "stb_includes/stb_image_write.h"
 #include "stb_includes/stb_image_resize.h"
 
-
+int min(int a,int b){
+    return a>b?b:a;
+}
+int max(int a,int b){
+    return a>=b?a:b;
+}
 int truncate(unsigned int x){
-    int max,min;
-    max=x>=0?x:0;
-    min=max>255?255:max;
-    return(min);    
+    // int max,min;
+    // max= x>=0 ? x:0;
+    // min= max > 255 ? 255 : max;
+//    return(min);
+return min(255, max(0, x))    ;
 }//return min(255, max(0, x))
 
 void Image_load(Image *img, const char *fname)
