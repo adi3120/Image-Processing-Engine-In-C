@@ -91,16 +91,46 @@ void Image_to_grey(const Image *orig, Image *grey)
     ON_ERROR_EXIT(grey->data == NULL, "Error in creating grey image");
 
     //THE LOOP
+    //formula used grayscale=(r+g+b)/3
+    // for (unsigned char *p = orig->data, *pg = grey->data; p != orig->data + orig->size; p += orig->channels, pg += grey->channels)
+    // {
+    //     *pg = (uint8_t)((*p + *(p + 1) + *(p + 2)) / 3.0);
+    //     if (orig->channels == 4)
+    //     {
+    //         *(pg + 1) = *(p + 3);
+    //     }
+    // }
+    //formula used
+    //grayscale=0.299r+0.587g+0.114b;
 
     for (unsigned char *p = orig->data, *pg = grey->data; p != orig->data + orig->size; p += orig->channels, pg += grey->channels)
     {
-        *pg = (uint8_t)((*p + *(p + 1) + *(p + 2)) / 3.0);
+        *pg = (uint8_t)(*p * 0.299 + *(p + 1) * 0.587 + *(p + 2) * 0.114);
         if (orig->channels == 4)
         {
             *(pg + 1) = *(p + 3);
         }
     }
 }
+void Image_to_sepia(const Image *orig, Image *sepia)
+{
+    ON_ERROR_EXIT(!(orig->allocation_ != NO_ALLOCATION && orig->channels >= 3), "The input image must have at least 3 channels.");
+    Image_create(sepia, orig->width, orig->height, orig->channels, false);
+    ON_ERROR_EXIT(sepia->data == NULL, "Error in creating the image");
+
+    // Sepia filter coefficients from https://stackoverflow.com/questions/1061093/how-is-a-sepia-tone-created
+    for (unsigned char *p = orig->data, *pg = sepia->data; p != orig->data + orig->size; p += orig->channels, pg += sepia->channels)
+    {
+        *pg = (uint8_t)fmin(0.393 * *p + 0.769 * *(p + 1) + 0.189 * *(p + 2), 255.0);       // red
+        *(pg + 1) = (uint8_t)fmin(0.349 * *p + 0.686 * *(p + 1) + 0.168 * *(p + 2), 255.0); // green
+        *(pg + 2) = (uint8_t)fmin(0.272 * *p + 0.534 * *(p + 1) + 0.131 * *(p + 2), 255.0); // blue
+        if (orig->channels == 4)
+        {
+            *(pg + 3) = *(p + 3);
+        }
+    }
+}
+
 void Image_resize(const Image *pic)
 {
     int rh;
@@ -117,12 +147,13 @@ void Image_to_ASCII(const Image *pic)
 {
     unsigned char b[11] = {'.', ',', '!', ';', '+', '*', '?', '%', '$', '#', '@'};
     unsigned char a[pic->width][pic->height];
-    int i=0;int j=0;
+    int i = 0;
+    int j = 0;
     for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
     {
         a[i][j] = (uint8_t)(b[*p / 23]);
-        j=j<pic->width-1?j+1:0;
-        i=j==0?i+1:i;
+        j = j < pic->width - 1 ? j + 1 : 0;
+        i = j == 0 ? i + 1 : i;
     }
     for (int h = 0; h < pic->height; h++)
     {
@@ -130,6 +161,25 @@ void Image_to_ASCII(const Image *pic)
         {
             printf("%c", a[h][w]);
         }
-    printf("\n");
+        printf("\n");
+    }
+}
+void Image_Brightness(const Image *pic, int del_b)
+{
+
+    for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
+    {
+        if (del_b >= 0)
+        {//to increase the brightness
+            *p = *p < (uint8_t)(255 - del_b) ? *p + del_b : *p;
+            *(p + 1) = *(p + 1) < (uint8_t)(255 - del_b) ? *(p + 1) + del_b : *(p + 1);
+            *(p + 2) = *(p + 2) < (uint8_t)(255 - del_b) ? *(p + 2) + del_b : *(p + 2);
+        }
+        else if (del_b < 0)
+        {//to decrease the brightness
+            *p = *p > (uint8_t)(del_b) ? *p - del_b : *p;
+            *(p + 1) = *(p + 1) > (uint8_t)( del_b) ? *(p + 1) - del_b : *(p + 1);
+            *(p + 2) = *(p + 2) > (uint8_t)( del_b) ? *(p + 2) - del_b : *(p + 2);
+        }
     }
 }
