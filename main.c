@@ -17,8 +17,7 @@ int main(void){
     Image one_sepia;
     Image_to_sepia(&one,&one_sepia);
     Image_save(&one_sepia,"test_sepia.jpg");   
-    Image one_new;
-    Image_Brightness(&one,-20);
+    Increase_Image_Brightness(&one,10);
     Image_save(&one,"test_bright.jpg");
     Image_free(&one);
     Image_free(&one_grey);

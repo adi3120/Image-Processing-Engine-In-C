@@ -21,4 +21,4 @@ void Image_to_grey(const Image*orig,Image *grey);
 void Image_to_sepia(const Image*orig,Image *sepia);
 void Image_resize(const Image *pic);
 void Image_to_ASCII(const Image*pic);
-void Image_Brightness(const Image* pic, int del_b);
+void Increase_Image_Brightness(const Image* pic, unsigned int del_b);

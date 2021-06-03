@@ -8,6 +8,14 @@
 #include "stb_includes/stb_image_write.h"
 #include "stb_includes/stb_image_resize.h"
 
+
+int truncate(unsigned int x){
+    int max,min;
+    max=x>=0?x:0;
+    min=max>255?255:max;
+    return(min);    
+}//return min(255, max(0, x))
+
 void Image_load(Image *img, const char *fname)
 {
     if ((img->data = stbi_load(fname, &img->width, &img->height, &img->channels, 0)) != NULL)
@@ -164,22 +172,13 @@ void Image_to_ASCII(const Image *pic)
         printf("\n");
     }
 }
-void Image_Brightness(const Image *pic, int del_b)
+void Increase_Image_Brightness(const Image *pic, unsigned int del_b)
 {
-
     for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
     {
-        if (del_b >= 0)
-        {//to increase the brightness
-            *p = *p < (uint8_t)(255 - del_b) ? *p + del_b : *p;
-            *(p + 1) = *(p + 1) < (uint8_t)(255 - del_b) ? *(p + 1) + del_b : *(p + 1);
-            *(p + 2) = *(p + 2) < (uint8_t)(255 - del_b) ? *(p + 2) + del_b : *(p + 2);
-        }
-        else if (del_b < 0)
-        {//to decrease the brightness
-            *p = *p > (uint8_t)(del_b) ? *p - del_b : *p;
-            *(p + 1) = *(p + 1) > (uint8_t)( del_b) ? *(p + 1) - del_b : *(p + 1);
-            *(p + 2) = *(p + 2) > (uint8_t)( del_b) ? *(p + 2) - del_b : *(p + 2);
-        }
+         *p=truncate(((*p)+del_b));
+         *(p+1)=truncate((*(p+1)+del_b));
+         *(p+2)=truncate((*(p+2)+del_b));       
     }
 }
+
