@@ -18,12 +18,9 @@ int max(int a, int b)
 }
 int truncate(unsigned int x)
 {
-    // int max,min;
-    // max= x>=0 ? x:0;
-    // min= max > 255 ? 255 : max;
-    //    return(min);
+
     return min(255, max(0, x));
-} //return min(255, max(0, x))
+}
 
 void Image_load(Image *img, const char *fname)
 {
@@ -209,5 +206,32 @@ void Image_contrast(const Image *pic, float alpha, int beta)
         *p = truncate(alpha * (*p - myu) + myu);
         *(p + 1) = truncate(alpha * (*(p + 1) - myu) + myu);
         *(p + 2) = truncate(alpha * (*(p + 2) - myu) + myu);
+    }
+}
+
+void Image_Saturation(const Image *pic, float alpha, int beta)
+{
+    float myu = 0;
+    if (beta == 255)
+        alpha = INFINITY;
+    else
+        alpha = (255 + beta) / (255 - beta);
+    for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
+    {
+        myu = ((*p + *(p + 1) + *(p + 2)) / 3.0);
+        *p = truncate(alpha * (*p - myu) + myu);
+        *(p + 1) = truncate(alpha * (*(p + 1) - myu) + myu);
+        *(p + 2) = truncate(alpha * (*(p + 2) - myu) + myu);
+    }
+}
+
+void Image_gamma(const Image *pic, float gamma)
+{
+    for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
+    {
+
+        *p = 255 * float(pow(float(*p / 255), (gamma)));
+        *(p + 1) = 255 * float(pow(float((*(p + 1)) / 255), gamma));
+        *(p + 2) = 255 * float(pow((float(*(p + 2) / 255)), gamma));
     }
 }

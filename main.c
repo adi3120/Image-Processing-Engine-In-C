@@ -31,10 +31,17 @@ int main(void)
 
     //Contrast manipulation
     Image_contrast(&one, 10, 100);
-    Image_save(&one, "test_constrast.jpg");
+    Image_save(&one, "test_contrast.jpg");
+
+    //Saturation Manipulation
+    Image_Saturation(&one,10,200);
+    Image_save(&one,"test_saturation.jpg");
+
+    //Gamma Manipulation
+    Image_gamma(&one,0.1);
+    Image_save(&one,"test_gamma.jpg");
 
     Image_free(&one);
     Image_free(&one_grey);
     Image_free(&one_sepia);
-    Image_free(&one);
 }

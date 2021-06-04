@@ -23,3 +23,5 @@ void Image_resize(const Image *pic,int factor);
 void Image_to_ASCII(const Image*pic);
 void Image_Brightness(const Image* pic, unsigned int del_b);
 void Image_contrast(const Image *pic, float alpha, int beta);
+void Image_Saturation(const Image *pic, float alpha, int beta);
+void Image_gamma(const Image *pic, float gamma);

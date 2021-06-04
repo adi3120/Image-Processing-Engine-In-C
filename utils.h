@@ -17,6 +17,15 @@ do{\
     }\
 } while(0)
 
+#define POW(x, y) \
+    ({ \
+        int temp=(x); \
+        for (int i = (0); i < (y); ++i){ \
+            (x=(x* temp)); \
+        } \
+        x; \
+    })
+
 
 //CHECK IF A STRING "str" ENDS WITH A SUBSTRING "ends"
 //BASICALLY TO CHECK IF A STRING IS .jpg/.JPEG.JPG/.PNG/.png
