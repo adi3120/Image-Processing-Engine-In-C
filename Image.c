@@ -8,19 +8,22 @@
 #include "stb_includes/stb_image_write.h"
 #include "stb_includes/stb_image_resize.h"
 
-int min(int a,int b){
-    return a>b?b:a;
+int min(int a, int b)
+{
+    return a > b ? b : a;
 }
-int max(int a,int b){
-    return a>=b?a:b;
+int max(int a, int b)
+{
+    return a >= b ? a : b;
 }
-int truncate(unsigned int x){
+int truncate(unsigned int x)
+{
     // int max,min;
     // max= x>=0 ? x:0;
     // min= max > 255 ? 255 : max;
-//    return(min);
-return min(255, max(0, x))    ;
-}//return min(255, max(0, x))
+    //    return(min);
+    return min(255, max(0, x));
+} //return min(255, max(0, x))
 
 void Image_load(Image *img, const char *fname)
 {
@@ -104,7 +107,7 @@ void Image_to_grey(const Image *orig, Image *grey)
     Image_create(grey, orig->width, orig->height, channels, false);
     ON_ERROR_EXIT(grey->data == NULL, "Error in creating grey image");
 
-    //THE LOOP
+    //METHOD 1
     //formula used grayscale=(r+g+b)/3
     // for (unsigned char *p = orig->data, *pg = grey->data; p != orig->data + orig->size; p += orig->channels, pg += grey->channels)
     // {
@@ -114,6 +117,8 @@ void Image_to_grey(const Image *orig, Image *grey)
     //         *(pg + 1) = *(p + 3);
     //     }
     // }
+
+    //METHOD 2
     //formula used
     //grayscale=0.299r+0.587g+0.114b;
 
@@ -145,27 +150,26 @@ void Image_to_sepia(const Image *orig, Image *sepia)
     }
 }
 
-void Image_resize(const Image *pic)
+void Image_resize(const Image *pic, int factor)
 {
-    int rh;
-    int rw;
-
-    rh = pic->height / 3;
-    rw = pic->width / 2;
-
+    int rh = (pic->height) * (1 / factor);
+    int rw = (pic->width) * (1 / factor);
+    //Image_create(res, res->width, res->height, pic->channels, false);
+    // ON_ERROR_EXIT(res->data == NULL, "Error in creating resized image");
     stbir_resize_uint8(pic->data, pic->width, pic->height, 0, pic->data, rw, rh, 0, pic->channels);
-
-    stbi_write_jpg("test.jpg", rw, rh, pic->channels, pic->data, 100);
+    stbi_write_jpg("test_resized.jpg", rw, rh, pic->channels, pic->data, 100);
 }
 void Image_to_ASCII(const Image *pic)
 {
-    unsigned char b[11] = {'.', ',', '!', ';', '+', '*', '?', '%', '$', '#', '@'};
-    unsigned char a[pic->width][pic->height];
+    unsigned char shades[11] = {'.', ',', '!', ';', '+', '*', '?', '%', '$', '#', '@'};
+    unsigned char ASCII_ARRAY[pic->height][pic->width];
     int i = 0;
     int j = 0;
     for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
     {
-        a[i][j] = (uint8_t)(b[*p / 23]);
+        ASCII_ARRAY[i][j] = shades[*p / 23];
+        //THE PSEUDO LOOP
+        //TO CHECK BOUNDARIES
         j = j < pic->width - 1 ? j + 1 : 0;
         i = j == 0 ? i + 1 : i;
     }
@@ -173,7 +177,7 @@ void Image_to_ASCII(const Image *pic)
     {
         for (int w = 0; w < pic->width; w++)
         {
-            printf("%c", a[h][w]);
+            printf("%c", ASCII_ARRAY[h][w]);
         }
         printf("\n");
     }
@@ -182,9 +186,28 @@ void Image_Brightness(const Image *pic, unsigned int del_b)
 {
     for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
     {
-         *p=truncate(((*p)+del_b));
-         *(p+1)=truncate((*(p+1)+del_b));
-         *(p+2)=truncate((*(p+2)+del_b));       
+        *p = truncate(((*p) + del_b));
+        *(p + 1) = truncate((*(p + 1) + del_b));
+        *(p + 2) = truncate((*(p + 2) + del_b));
     }
 }
 
+void Image_contrast(const Image *pic, float alpha, int beta)
+{
+    int bsum = 0;
+    for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
+    {
+        bsum += *p + *(p + 1) + *(p + 2);
+    }
+    float myu = bsum / pic->size;
+    if (beta == 255)
+        alpha = INFINITY;
+    else
+        alpha = (255 + beta) / (255 - beta);
+    for (unsigned char *p = pic->data; p != pic->data + pic->size; p += pic->channels)
+    {
+        *p = truncate(alpha * (*p - myu) + myu);
+        *(p + 1) = truncate(alpha * (*(p + 1) - myu) + myu);
+        *(p + 2) = truncate(alpha * (*(p + 2) - myu) + myu);
+    }
+}
