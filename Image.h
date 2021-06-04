@@ -19,6 +19,7 @@ void Image_save(const Image*img,const char * fname);
 void Image_free(Image * img);
 void Image_to_grey(const Image*orig,Image *grey);
 void Image_to_sepia(const Image*orig,Image *sepia);
-void Image_resize(const Image *pic);
+void Image_resize(const Image *pic,int factor);
 void Image_to_ASCII(const Image*pic);
 void Image_Brightness(const Image* pic, unsigned int del_b);
+void Image_contrast(const Image *pic, float alpha, int beta);
